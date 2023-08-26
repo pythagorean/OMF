@@ -1,0 +1,2 @@
+class MatrixNumberStrMixin:
+    pass
