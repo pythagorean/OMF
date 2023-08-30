@@ -1,4 +1,4 @@
-from typing import TypeVar, List
+from typing import TypeVar
 from pydantic import BaseModel
 
 from number.ops import BaseNumberOpsMixin

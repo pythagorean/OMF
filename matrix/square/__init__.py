@@ -1,14 +1,13 @@
-from pydantic import BaseModel
-
-
-class SquareMatrixInitMixin(BaseModel):
-    def __init__(self, matrix, **kwargs):
+class SquareMatrixInitMixin:
+    def __init__(self, matrix, *, to_ndarray=False, **kwargs):
         size, validated_matrix = self.validate_matrix(matrix)
         super().__init__(size=size, matrix=validated_matrix, **kwargs)
+        if to_ndarray:
+            self.to_ndarray()
 
     @staticmethod
     def validate_scalar(scalar):
-        if not scalar:
+        if scalar is None:
             raise ValueError("Square matrix may not be empty")
         return 1, [[scalar]]
 

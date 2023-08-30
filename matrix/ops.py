@@ -19,3 +19,13 @@ class MatrixOpsMixin(MatrixRawOpsMixin):
 
     def _create_row_view(self, index):
         return MatrixRowView(self, index)
+
+    def non_zero_indices(self):
+        matrix = self.matrix
+        rows, cols = len(matrix), len(matrix[0])
+        non_zero_coords = []
+        for i in range(rows):
+            for j in range(cols):
+                if matrix[i][j] != 0:
+                    non_zero_coords.append((i, j))
+        return non_zero_coords

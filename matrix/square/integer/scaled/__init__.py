@@ -1,9 +1,8 @@
 from fractions import Fraction
 from typing import ClassVar
-from pydantic import BaseModel
 
 
-class FractionScaledMatrixInitMixin(BaseModel):
+class FractionScaledMatrixInitMixin:
     """
     Initializes a FractionScaledMatrix.
 
@@ -29,7 +28,10 @@ class FractionScaledMatrixInitMixin(BaseModel):
             scaling = (scaling, 1)
         elif isinstance(scaling, Fraction):
             scaling = scaling.as_integer_ratio()
-        if isinstance(first_element, int):
+        if isinstance((other := elements), self.__class__):
+            super().__init__(other.matrix, scaling=other.scaling,
+                             reduced=other.reduced, **kwargs)
+        elif isinstance(first_element, int):
             self._init_from_integers(elements, scaling, **kwargs)
         elif not isinstance(elements, list):
             self._init_from_fraction(elements, scaling, **kwargs)

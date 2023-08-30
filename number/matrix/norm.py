@@ -1,2 +1,0 @@
-class MatrixNumberNormMixin:
-    pass

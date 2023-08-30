@@ -1,8 +1,13 @@
 class SquareMatrixRawOpsMixin:
     @classmethod
+    def _zeros_raw(cls, size):
+        return [[0 for _ in range(size)] for _ in range(size)]
+
+    @classmethod
     def _identity_raw(cls, size):
-        matrix = [[1 if i == j else 0 for j in range(
-            size)] for i in range(size)]
+        matrix = [[1 if i == j else 0
+                   for j in range(size)]
+                  for i in range(size)]
         return matrix
 
     def _mul_raw(self, other_matrix):

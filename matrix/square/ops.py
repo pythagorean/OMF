@@ -4,6 +4,11 @@ from matrix.square.row_view import SquareMatrixRowView
 
 class SquareMatrixOpsMixin(SquareMatrixRawOpsMixin):
     @classmethod
+    def zeros(cls, size):
+        matrix = cls._zeros_raw(size)
+        return cls(matrix)
+
+    @classmethod
     def identity(cls, size):
         matrix = cls._identity_raw(size)
         return cls(matrix)

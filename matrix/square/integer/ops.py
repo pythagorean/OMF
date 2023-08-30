@@ -66,3 +66,18 @@ class IntegerSquareMatrixOpsMixin(IntegerMatrixRawOpsMixin):
             det += ((-1) ** col_index) * \
                 self.matrix[0][col_index] * submatrix.determinant()
         return det
+
+    def is_zeros_or_identity(self):
+        is_zeros = True
+        is_identity = True
+        for i in range(self.size):
+            value = self[i, i]
+            if is_zeros and value != 0:
+                is_zeros = False
+            if is_identity and value != 1:
+                is_identity = False
+            if not is_identity and not is_zeros:
+                return (False, -1)
+        if any(self[i, j] for i in range(self.size) for j in range(self.size) if i != j):
+            return (False, -1)
+        return (True, 0 if is_zeros else 1)
