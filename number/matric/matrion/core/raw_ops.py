@@ -1,4 +1,4 @@
-class MatrionRawOpsMixin:
+class CoreMatrionRawOpsMixin:
     def _zeros_raw(self, size, set_fractional=False):
         return self.value._zeros_raw(size, set_fractional)
 

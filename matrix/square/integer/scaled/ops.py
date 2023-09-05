@@ -191,7 +191,3 @@ class FractionScaledMatrixOpsMixin(FractionScaledRawOpsMixin):
             cofactor_matrix.append(cofactor_row)
         cofactors = self.__class__(cofactor_matrix)
         return cofactors.transpose()
-
-    def matrion_reduction(self):
-        from number.matric.matrion.base import Matrion
-        return Matrion(self).value

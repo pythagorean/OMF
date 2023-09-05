@@ -2,7 +2,7 @@ from enum import Enum, auto
 from typing import List
 from pydantic import BaseModel, Field
 
-from number.matric.matrion.factored.scaled.base import VirtualScaledMatrion
+from number.matric.matrion.base import Matrion
 
 
 class Operator(Enum):
@@ -10,7 +10,7 @@ class Operator(Enum):
     MULT = auto()
 
 
-class ChainedMatrion(VirtualScaledMatrion,
+class ChainedMatrion(Matrion,
                      BaseModel):
-    sequence: List[VirtualScaledMatrion] = Field(..., min_items=1)
+    sequence: List[Matrion] = Field(..., min_items=1)
     operation: Operator

@@ -5,9 +5,7 @@ This repository eventually will contain a comprehensive library for representing
 
 Current capabilities include:
 
-* Integer square matrices with operator overrides for arithmetic.
-* Fractional scaling to enable rational number matrices.
+* Fractional scaled integer square matrices with rational valued arithmetic operations
 * Matrions are partially implemented, a reduced, simplified matrix representation
   for algebraic numbers enabling concrete, finite numeric encoding of relationships
   typically considered irrational. Matrions can represent nth roots of any number.
-  

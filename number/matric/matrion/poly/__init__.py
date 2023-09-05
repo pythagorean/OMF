@@ -1,12 +1,12 @@
-from number.matric.matrion.factored.scaled.chained.base import ChainedMatrion
-from number.matric.matrion.factored.scaled.base import VirtualScaledMatrion
+from number.matric.matrion.chained.base import ChainedMatrion
+from number.matric.matrion.base import Matrion
 
 
 class PolyMatrionInitMixin:
     def __init__(self, elements):
         if not isinstance((element := elements), list):
-            elements = [VirtualScaledMatrion(element)]
+            elements = [Matrion(element)]
         elif (len(elements) > 1 and not
-              isinstance(elements[0], (VirtualScaledMatrion, ChainedMatrion))):
-            elements = [VirtualScaledMatrion(elements)]
+              isinstance(elements[0], (Matrion, ChainedMatrion))):
+            elements = [Matrion(elements)]
         super().__init__(sequence=elements)

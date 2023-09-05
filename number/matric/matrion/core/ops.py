@@ -1,9 +1,12 @@
 from fractions import Fraction
 
-from number.matric.matrion.raw_ops import MatrionRawOpsMixin
+from number.matric.matrion.core.raw_ops import CoreMatrionRawOpsMixin
 
 
-class MatrionOpsMixin(MatrionRawOpsMixin):
+class CoreMatrionOpsMixin(CoreMatrionRawOpsMixin):
+    def copy(self, **kwargs):
+        return self.__class__(self, **kwargs)
+
     def __pow__(self, exponent):
         if isinstance(exponent, int):
             exponent = Fraction(exponent)
