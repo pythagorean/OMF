@@ -1,15 +1,12 @@
 from enum import Enum, auto
+from number.matric.matrion.transform.base import MatrionTransform
 
 
-class DeferMethod(Enum):
+class DeferTransform(Enum):
     ROOT = auto()
 
 
-class ReductionMethod:
-    # Subclasses need to override these
-    is_deterministic = None
-    is_reversible = None
-
+class ReductionTransform(MatrionTransform):
     @classmethod
     def normalize(cls, matrion):
         # Subclasses can return True, (int > 1) to record a transformation

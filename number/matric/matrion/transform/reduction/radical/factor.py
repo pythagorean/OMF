@@ -1,16 +1,17 @@
 from matrix.square.integer.scaled.base import FractionScaledMatrix
 from number.matric.matrion.core.base import CoreMatrion
 
-from number.matric.matrion.methods.reduction.base import ReductionMethod, DeferMethod
+from number.matric.matrion.transform.reduction.base import ReductionTransform, DeferTransform
 
-from number.matric.matrion.methods.reduction.radical.ops import RadicalFactoredReductionOpsMixin
+from number.matric.matrion.transform.reduction.radical.ops import RadicalFactoredReductionOpsMixin
 
 
 class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
-                               ReductionMethod):
+                               ReductionTransform):
     is_deterministic = True
     is_reversible = True
-    defers_methods = [DeferMethod.ROOT]
+
+    defers_reductions = [DeferTransform.ROOT]
 
     @classmethod
     def normalize(cls, matrion):
@@ -23,8 +24,12 @@ class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
             return
 
         first_index, radical = first_diagonal
-        if first_index != 1 or radical != 1:
-            # We are only handling simple integer non-scalar multiplied roots for now
+        if first_index != 1:
+            # We are only handling simple scalar roots for now
+            return
+
+        if radical != matrion.value.get_scaling() ** -1:
+            # This is some multiple of a scalar root
             return
 
         order = matrion.value.size
@@ -45,11 +50,10 @@ class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
         next_index, radicand = next_diagonal
         if (number_zero_diagonals != number_diagonals - 2
                 or next_index != -(matrion.value.size - 1)):
-            # This is not a simple integer root
+            # This is not a simple scalar root
             return
 
-        matrion.value = FractionScaledMatrix(
-            radicand, scaling=matrion.value.scaling)
+        matrion.value = FractionScaledMatrix((radicand, radical))
         return True, order
 
     @classmethod

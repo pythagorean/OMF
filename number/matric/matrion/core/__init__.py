@@ -2,6 +2,8 @@ from matrix.square.integer.scaled.base import FractionScaledMatrix
 
 
 class CoreMatrionInitMixin:
+    __version__ = '1.0.0'
+
     def __init__(self, value, *, scaling=1, normalize=True, **kwargs):
         if isinstance((other := value), self.__class__):
             super().__init__(value=other.value * scaling, **kwargs)

@@ -18,3 +18,10 @@ class CoreMatrion(CoreMatrionInitMixin,
 
     def _normalize(self):
         pass
+
+    def data(self):
+        return vars(self)
+
+    @classmethod
+    def load(cls, data_dict):
+        return cls(**data_dict)

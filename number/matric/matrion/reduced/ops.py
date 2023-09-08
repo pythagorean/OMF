@@ -1,82 +1,86 @@
-from number.matric.matrion.methods.reduction.base import ReductionMethod, DeferMethod
+from number.matric.matrion.transform.reduction.base import ReductionTransform, DeferTransform
 
 
 class ReducedMatrionOpsMixin:
     def root(self, order):
         matrion = self.copy()
-        if DeferMethod.ROOT in self.defers:
-            defer_root = self.defers[DeferMethod.ROOT]
-            matrion.applied.append((defer_root, order))
+        if DeferTransform.ROOT in self.defers:
+            defer_root = self.defers[DeferTransform.ROOT]
+            matrion.perform_reductions.append((defer_root, order))
         else:
             matrion.value = super().root(order).value
         return matrion
 
-    def add_and_remove_methods(self, *, add_methods=[], remove_methods=[], remove_all=False):
-        addition_list = self._validate_method_addition_list(add_methods)
+    def add_and_remove_reductions(self, *, add_reductions=[], remove_reductions=[], remove_all=False):
+        addition_list = self._validate_reduction_addition_list(add_reductions)
         if remove_all:
-            if remove_methods:
+            if remove_reductions:
                 raise ValueError(
-                    "You supplied a list of methods to remove, along with remove all")
-            removal_list = self.methods
-            self.methods.clear()
+                    "You supplied a list of reductions to remove, along with remove all")
+            removal_list = self.reductions
+            self.reductions.clear()
         else:
-            removal_list = self._validate_method_removal_list(remove_methods)
-            for method in removal_list:
-                self.methods.remove(method)
-        self.methods.extend(addition_list)
+            removal_list = self._validate_reduction_removal_list(
+                remove_reductions)
+            for reduction in removal_list:
+                self.reductions.remove(reduction)
+        self.reductions.extend(addition_list)
         if self.reduced:
-            previously_applied = [applied[0] for applied in self.applied]
-            if addition_list or any(removed_method in previously_applied
-                                    for removed_method in removal_list):
+            previously_performed = [performed[0]
+                                    for performed in self.perform_reductions]
+            if addition_list or any(removed_reduction in previously_performed
+                                    for removed_reduction in removal_list):
                 self.value = self._denormalized()
                 self.reduced = False
-                self.applied = []
+                self.perform_reductions = []
                 self._normalize()
 
-    def add_methods(self, methods):
-        if not isinstance(methods, list):
-            raise ValueError("Must supply ReductionMethod list")
-        self.add_and_remove_methods(add_methods=methods)
+    def add_reductions(self, reductions):
+        if not isinstance(reductions, list):
+            raise ValueError("Must supply ReductionTransform list")
+        self.add_and_remove_reductions(add_reductions=reductions)
 
-    def remove_methods(self, methods):
-        if not isinstance(methods, list):
-            raise ValueError("Must supply list of reduction methods to remove")
-        self.add_and_remove_methods(remove_methods=methods)
+    def remove_reductions(self, reductions):
+        if not isinstance(reductions, list):
+            raise ValueError(
+                "Must supply list of reduction transforms to remove")
+        self.add_and_remove_reductions(remove_reductions=reductions)
 
-    def add_method(self, method):
-        self.add_methods([method])
+    def add_reduction(self, reduction):
+        self.add_reductions([reduction])
 
-    def remove_method(self, method):
-        self.remove_methods([method])
+    def remove_reduction(self, reduction):
+        self.remove_reductions([reduction])
 
-    def _validate_method_addition_list(self, methods):
-        for method in methods:
-            if not issubclass(method, ReductionMethod):
-                raise ValueError("Must supply valid ReductionMethod")
-            if method in self.methods:
+    def _validate_reduction_addition_list(self, reductions):
+        for reduction in reductions:
+            if not issubclass(reduction, ReductionTransform):
+                raise ValueError("Must supply valid ReductionTransform")
+            if reduction in self.reductions:
                 raise ValueError(
-                    f"Method {method.__name__} is already installed")
-        return methods
+                    f"reduction {reduction.__name__} is already installed")
+        return reductions
 
-    def _validate_method_removal_list(self, methods):
+    def _validate_reduction_removal_list(self, reductions):
         removal_list = []
-        for method in methods:
-            installed_method = self._resolve_method(method)
-            removal_list.append(installed_method)
+        for reduction in reductions:
+            installed_reduction = self._resolve_reduction(reduction)
+            removal_list.append(installed_reduction)
         return removal_list
 
-    def _resolve_method(self, method):
-        if isinstance(method, str):
-            return self._get_method_by_name(method)
+    def _resolve_reduction(self, reduction):
+        if isinstance(reduction, str):
+            return self._get_reduction_by_name(reduction)
         else:
-            return self._get_method_by_object(method)
+            return self._get_reduction_by_object(reduction)
 
-    def _get_method_by_name(self, name):
-        if (method := self.method_names.get(name, None)) is None:
-            raise ValueError(f"Method {name} is not currently installed")
-        return method
+    def _get_reduction_by_name(self, name):
+        if (reduction := self.reduction_names.get(name, None)) is None:
+            raise ValueError(f"reduction {name} is not currently installed")
+        return reduction
 
-    def _get_method_by_object(self, method):
-        if not method in self.methods:
-            raise ValueError(f"Method {method} is not currently installed")
-        return method
+    def _get_reduction_by_object(self, reduction):
+        if not reduction in self.reductions:
+            raise ValueError(
+                f"Reduction {reduction} is not currently installed")
+        return reduction

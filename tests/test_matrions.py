@@ -42,7 +42,7 @@ class TestMatrion:
         ([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 2, 0], [0, 0, 0, 2]], [[1, 0], [0, 2]])
     ])
     def test_diagonal_normalization(self, matrix_data, expected):
-        matrion = Matrion(matrix_data, only_methods=[
+        matrion = Matrion(matrix_data, only_reductions=[
                           'BlockDiagonalReduction', 'ElementDiagonalReduction'])
         expected = FractionScaledMatrix(expected)
         assert matrion.value == expected
@@ -78,6 +78,11 @@ class TestMatrion:
 
         # Validate reversibility
         assert matrion_normalized_8x8._denormalized() == matrion_upscaled_8x8.value
+
+        third_root_of_half = Matrion((1, 2)).root(3)
+        denorm_third_root_of_half = third_root_of_half._denormalized()
+        normal_third_root_of_half = Matrion(denorm_third_root_of_half)
+        assert normal_third_root_of_half == third_root_of_half
 
     def compare_get_diag_with_sympy(self, matrix_data):
         our_matrix = Matrion(matrix_data, normalize=False)

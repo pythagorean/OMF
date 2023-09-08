@@ -1,10 +1,10 @@
-from number.matric.matrion.methods.reduction.base import ReductionMethod
+from number.matric.matrion.transform.reduction.base import ReductionTransform
 
 from matrix.square.integer.base import IntegerSquareMatrix
 from matrix.square.integer.scaled.base import FractionScaledMatrix
 
 
-class BlockDiagonalReduction(ReductionMethod):
+class BlockDiagonalReduction(ReductionTransform):
     is_deterministic = True
     is_reversible = True
 

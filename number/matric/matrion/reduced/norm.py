@@ -6,20 +6,22 @@ class ReducedMatrionNormMixin:
         self.reduced = True
         if self.value.size == 1:
             return
-        for method in self.methods:
-            result = method.normalize(self)
+        performed = []
+        for reduction in self.reductions:
+            result = reduction.normalize(self)
             if isinstance(result, tuple) and len(result) == 2:
-                applied = result[0]
-                if applied:
+                should_perform = result[0]
+                if should_perform:
                     factor = result[1]
-                    self.applied.append((method, factor))
+                    performed.append((reduction, factor))
+        self.perform_reductions.extend(reversed(performed))
 
     def _denormalized(self):
         if not self.reduced:
             return self.value
         matrion = self
-        for applied in reversed(self.applied):
-            method, factor = applied
-            result = method.denormalized(matrion, factor)
+        for performed in self.perform_reductions:
+            reduction, factor = performed
+            result = reduction.denormalized(matrion, factor)
             matrion = self.__class__(result, normalize=False)
         return matrion.value
