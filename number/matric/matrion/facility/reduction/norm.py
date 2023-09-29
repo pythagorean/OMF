@@ -14,14 +14,15 @@ class ReducedMatrionNormMixin:
                 if should_perform:
                     factor = result[1]
                     performed.append((reduction, factor))
-        self.perform_reductions.extend(reversed(performed))
+        self.performed_reductions.extend(reversed(performed))
 
     def _denormalized(self):
+        from number.matric.matrion.base import Matrion
         if not self.reduced:
             return self.value
         matrion = self
-        for performed in self.perform_reductions:
+        for performed in self.performed_reductions:
             reduction, factor = performed
             result = reduction.denormalized(matrion, factor)
-            matrion = self.__class__(result, normalize=False)
+            matrion = Matrion(result, normalize=False)
         return matrion.value

@@ -2,17 +2,16 @@ from typing import List, Tuple, Type, Dict
 from typing_extensions import Annotated
 from pydantic import BaseModel, Field, model_validator
 
-from number.matric.matrion.core.base import CoreMatrion
+from .__init__ import ReducedMatrionInitMixin
+from .str import ReducedMatrionStrMixin
+from .ops import ReducedMatrionOpsMixin
+from .norm import ReducedMatrionNormMixin
+from ..base import MatrionFacility
 
-from number.matric.matrion.reduced.__init__ import ReducedMatrionInitMixin
-from number.matric.matrion.reduced.str import ReducedMatrionStrMixin
-from number.matric.matrion.reduced.ops import ReducedMatrionOpsMixin
-from number.matric.matrion.reduced.norm import ReducedMatrionNormMixin
-
-from number.matric.matrion.transform.reduction.base import ReductionTransform, DeferTransform
-from number.matric.matrion.transform.reduction.diagonal.block import BlockDiagonalReduction
-from number.matric.matrion.transform.reduction.diagonal.element import ElementDiagonalReduction
-from number.matric.matrion.transform.reduction.radical.factor import RadicalFactoredReduction
+from ...transform.reduction.base import ReductionTransform, DeferTransform
+from ...transform.reduction.diagonal.block import BlockDiagonalReduction
+from ...transform.reduction.diagonal.element import ElementDiagonalReduction
+from ...transform.reduction.radical.factor import RadicalFactoredReduction
 
 ScalingFactor = Annotated[int, Field(gt=1)]
 
@@ -21,13 +20,13 @@ class ReducedMatrion(ReducedMatrionInitMixin,
                      ReducedMatrionStrMixin,
                      ReducedMatrionOpsMixin,
                      ReducedMatrionNormMixin,
-                     CoreMatrion,
+                     MatrionFacility,
                      BaseModel):
     reduced: bool = Field(default=False)
     reductions: List[Type[ReductionTransform]] = Field(
         default=[BlockDiagonalReduction, ElementDiagonalReduction, RadicalFactoredReduction])
-    perform_reductions: List[Tuple[Type[ReductionTransform],
-                                   ScalingFactor]] = Field(default=[])
+    performed_reductions: List[Tuple[Type[ReductionTransform],
+                                     ScalingFactor]] = Field(default=[])
 
     # Autopopulated
     reduction_names: Dict[str, Type[ReductionTransform]] = Field(default={})
@@ -42,11 +41,16 @@ class ReducedMatrion(ReducedMatrionInitMixin,
         self._init_autopopulate_reduction_dictionaries()
         return self
 
-    def data(self):
-        exported = super().data()
-        exported["perform_reductions"] = [(reduction.__name__, scaling)
-                                          for reduction, scaling in self.perform_reductions]
+    def data(self, *, called_from=None):
+        if not called_from:
+            called_from = self.__class__.__name__
+        exported = super().data(called_from=called_from)
         exclude_keys = ["reductions", "reduction_names", "defers"]
+        if not (performed_reductions := [(reduction.__name__, scaling)
+                                         for reduction, scaling in self.performed_reductions]):
+            exclude_keys.append("performed_reductions")
+        else:
+            exported["performed_reductions"] = performed_reductions
         for key in exclude_keys:
             exported.pop(key, None)
         return exported

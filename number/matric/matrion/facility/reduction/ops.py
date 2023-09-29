@@ -1,15 +1,15 @@
-from number.matric.matrion.transform.reduction.base import ReductionTransform, DeferTransform
+from ...transform.reduction.base import ReductionTransform, DeferTransform
 
 
 class ReducedMatrionOpsMixin:
     def root(self, order):
-        matrion = self.copy()
+        selfcopy = self.model_copy()
         if DeferTransform.ROOT in self.defers:
             defer_root = self.defers[DeferTransform.ROOT]
-            matrion.perform_reductions.append((defer_root, order))
+            selfcopy.performed_reductions.append((defer_root, order))
         else:
-            matrion.value = super().root(order).value
-        return matrion
+            selfcopy.value = super().root(order).value
+        return selfcopy.as_matrion()
 
     def add_and_remove_reductions(self, *, add_reductions=[], remove_reductions=[], remove_all=False):
         addition_list = self._validate_reduction_addition_list(add_reductions)
@@ -27,12 +27,12 @@ class ReducedMatrionOpsMixin:
         self.reductions.extend(addition_list)
         if self.reduced:
             previously_performed = [performed[0]
-                                    for performed in self.perform_reductions]
+                                    for performed in self.performed_reductions]
             if addition_list or any(removed_reduction in previously_performed
                                     for removed_reduction in removal_list):
                 self.value = self._denormalized()
                 self.reduced = False
-                self.perform_reductions = []
+                self.performed_reductions = []
                 self._normalize()
 
     def add_reductions(self, reductions):

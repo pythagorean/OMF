@@ -1,4 +1,4 @@
-class MatrionStrMixin:
+class MatrionStringMixin:
     def __str__(self):
         super_str = super().__str__()
         return f"Matrion {super_str}"

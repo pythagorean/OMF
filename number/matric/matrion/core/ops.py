@@ -1,9 +1,12 @@
 from fractions import Fraction
 
-from number.matric.matrion.core.raw_ops import CoreMatrionRawOpsMixin
+from .raw_ops import CoreMatrionRawOpsMixin
 
 
 class CoreMatrionOpsMixin(CoreMatrionRawOpsMixin):
+    def data(self):
+        return vars(self)
+
     def copy(self, **kwargs):
         return self.__class__(self, **kwargs)
 

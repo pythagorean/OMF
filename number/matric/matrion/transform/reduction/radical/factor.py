@@ -1,9 +1,8 @@
 from matrix.square.integer.scaled.base import FractionScaledMatrix
 from number.matric.matrion.core.base import CoreMatrion
 
-from number.matric.matrion.transform.reduction.base import ReductionTransform, DeferTransform
-
-from number.matric.matrion.transform.reduction.radical.ops import RadicalFactoredReductionOpsMixin
+from .ops import RadicalFactoredReductionOpsMixin
+from ..base import ReductionTransform, DeferTransform
 
 
 class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
@@ -58,7 +57,7 @@ class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
 
     @classmethod
     def denormalized(cls, matrion, order):
-        return CoreMatrion(matrion).root(order).value
+        return CoreMatrion(matrion.value).root(order).value
 
     @classmethod
     def annotation(cls, factor):

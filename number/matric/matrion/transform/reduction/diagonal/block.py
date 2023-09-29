@@ -1,4 +1,4 @@
-from number.matric.matrion.transform.reduction.base import ReductionTransform
+from ..base import ReductionTransform
 
 from matrix.square.integer.base import IntegerSquareMatrix
 from matrix.square.integer.scaled.base import FractionScaledMatrix

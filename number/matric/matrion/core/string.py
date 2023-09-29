@@ -1,4 +1,4 @@
-class CoreMatrionStrMixin:
+class CoreMatrionStringMixin:
     def __str__(self):
         return f"value:\n{self._str_interior()}"
 

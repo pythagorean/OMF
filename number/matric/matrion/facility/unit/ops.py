@@ -1,5 +1,5 @@
-from number.matric.matrion.transform.unit.base import UnitTransform
-from number.matric.matrion.transform.unit.general.unspecified import UnspecifiedUnit
+from ...transform.unit.base import UnitTransform
+from ...transform.unit.general.unspecified import UnspecifiedUnit
 
 
 class UnitMatrionOpsMixin:

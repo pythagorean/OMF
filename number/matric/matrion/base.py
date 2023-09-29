@@ -1,11 +1,14 @@
 from pydantic import BaseModel
 
-from number.matric.matrion.str import MatrionStrMixin
+from .string import MatrionStringMixin
 
-from number.matric.matrion.stamped.base import StampedMatrion as MatrionBase
+from .modular.base import ModularMatrion as MatrionBase
 
 
-class Matrion(MatrionStrMixin,
+class Matrion(MatrionStringMixin,
               MatrionBase,
               BaseModel):
-    pass
+
+    @classmethod
+    def load(cls, data_dict):
+        return cls(**data_dict)
