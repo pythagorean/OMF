@@ -6,6 +6,7 @@ from .string import ModularMatrionStringMixin
 from .attrib import ModularMatrionAttribMixin
 from .ops import ModularMatrionOpsMixin
 from .norm import ModularMatrionNormMixin
+from .proj import ModularMatrionProjectionMixin
 
 from ..facility.base import MatrionFacility
 from ..facility.reduction.base import ReducedMatrion
@@ -22,6 +23,7 @@ class ModularMatrion(ModularMatrionInitMixin,
                      ModularMatrionAttribMixin,
                      ModularMatrionOpsMixin,
                      ModularMatrionNormMixin,
+                     ModularMatrionProjectionMixin,
                      BaseModel):
     core: CoreMatrion
     facilities: List[Tuple[MatrionFacility, Set[str]]] = Field(default=[])
