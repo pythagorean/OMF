@@ -1,3 +1,8 @@
+from fractions import Fraction
+
+from ..base import DeferTransform
+
+
 class RadicalFactoredReductionOpsMixin:
     @classmethod
     def _find_nonzero_constant_diagonals(cls, matrion):
@@ -40,3 +45,34 @@ class RadicalFactoredReductionOpsMixin:
             if idx == matrix_size - 1 or all(matrix_data[idx + i][i] == 0
                                              for i in range(matrix_size - idx)):
                 yield -idx
+
+    @classmethod
+    def defers_multiply(cls, reduction, other):
+        try:
+            # We only handle/defer scalars right now
+            fractional_other = Fraction(other)
+        except TypeError:
+            return False
+        extra = reduction[2]
+        extra['/'] = fractional_other * extra.get('/', 1)
+        return True
+
+    @classmethod
+    def annotation(cls, factor, extra=None):
+        if extra and (divided := extra.get('/', None)) is not None:
+            numer, denom = divided
+            if denom == 1:
+                return f"{numer} * root {factor} of"
+            return f"({Fraction(numer, denom)}) * root {factor} of"
+        return f"root {factor} of"
+
+    @classmethod
+    def defers(cls, matrion, transform, **kwargs):
+        if transform != DeferTransform.MULTIPLY:
+            raise ValueError(f"unhandled transform: {transform}")
+        performed = matrion.performed_reductions
+        for reduction in performed:
+            transform = reduction[0]
+            if cls == transform and cls.defers_multiply(reduction, kwargs['other']):
+                return True
+        return False
