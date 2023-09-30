@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from ...transform.reduction.base import ReductionTransform, DeferTransform
 
 
@@ -30,13 +32,21 @@ class ReducedMatrionOpsMixin:
         return exported
 
     def root(self, order):
-        selfcopy = self.model_copy()
+        selfcopy = deepcopy(self)
         if DeferTransform.ROOT in self.defers:
             defer_root = self.defers[DeferTransform.ROOT]
             selfcopy.performed_reductions.append((defer_root, order))
         else:
             selfcopy.value = super().root(order).value
         return selfcopy.as_matrion()
+
+    def __mul__(self, other):
+        if DeferTransform.MULTIPLY in self.defers:
+            selfcopy = deepcopy(self)
+            defer_multiply = self.defers[DeferTransform.MULTIPLY]
+            if defer_multiply.defers(selfcopy, DeferTransform.MULTIPLY, other=other):
+                return selfcopy.as_matrion()
+        return self._managed_mul(other)
 
     def add_and_remove_reductions(self, *, add_reductions=[], remove_reductions=[], remove_all=False):
         addition_list = self._validate_reduction_addition_list(add_reductions)

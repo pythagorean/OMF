@@ -11,7 +11,7 @@ class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
     is_deterministic = True
     is_reversible = True
 
-    defers_reductions = [DeferTransform.ROOT]
+    defers_reductions = [DeferTransform.ROOT, DeferTransform.MULTIPLY]
 
     @classmethod
     def normalize(cls, matrion):
@@ -60,6 +60,17 @@ class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
         return True, order, extra
 
     @classmethod
+    def defers_multiply(cls, reduction, other):
+        try:
+            # We only handle/defer scalars right now
+            fractional_other = Fraction(other)
+        except TypeError:
+            return False
+        extra = reduction[2]
+        extra['/'] = fractional_other * extra.get('/', 1)
+        return True
+
+    @classmethod
     def denormalized(cls, matrion, order, extra=None):
         denormal_value = CoreMatrion(matrion.value).root(order).value
         if extra and (divided := extra.get('/', None)) is not None:
@@ -74,3 +85,15 @@ class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
                 return f"{numer} * root {factor} of"
             return f"({Fraction(numer, denom)}) * root {factor} of"
         return f"root {factor} of"
+
+    @classmethod
+    def defers(cls, matrion, transform, **kwargs):
+        if transform != DeferTransform.MULTIPLY:
+            raise ValueError(f"unhandled transform: {transform}")
+        performed = matrion.performed_reductions
+        for i in range(len(performed)):
+            reduction = performed[i]
+            transform = reduction[0]
+            if cls == transform and cls.defers_multiply(reduction, kwargs['other']):
+                return True
+        return False

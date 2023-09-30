@@ -5,6 +5,7 @@ from ..base import MatrionTransform
 
 class DeferTransform(Enum):
     ROOT = auto()
+    MULTIPLY = auto()
 
 
 class ReductionTransform(MatrionTransform):

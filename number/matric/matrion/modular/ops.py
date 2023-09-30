@@ -25,6 +25,13 @@ class ModularMatrionOpsMixin:
                    if key not in self.eq_exclusions)
 
     def __mul__(self, other):
+        method_name = '__mul__'
+        if not (facilities := self._facilities_with_attrib(method_name)):
+            return self._managed_mul(other)
+        self._get_method_stacks()[method_name] = facilities
+        return self._manage_attrib_method(method_name, other=other)
+
+    def _managed_mul(self, other):
         if not isinstance(other, self.__class__):
             return self.__class__(self._denormalized() * other)
         return self.__class__(self._denormalized() * other._denormalized())

@@ -96,3 +96,8 @@ class ReducedMatrionInitMixin:
                     installed_name = self.defers[DeferTransform.ROOT].__name__
                     raise ValueError(
                         f"Reduction {reduction_name} 'root' conflicts with {installed_name}")
+            if DeferTransform.MULTIPLY in getattr(reduction, 'defers_reductions', []):
+                if self.defers.setdefault(DeferTransform.MULTIPLY, reduction) is not reduction:
+                    installed_name = self.defers[DeferTransform.MULTIPLY].__name__
+                    raise ValueError(
+                        f"Reduction {reduction_name} '__mul__' conflicts with {installed_name}")

@@ -8,3 +8,6 @@ class MatrionFacilityOpsMixin:
 
     def eq_exclude(self, exclude):
         self.parent.eq_exclude(exclude)
+
+    def _managed_mul(self, other):
+        return self.parent._managed_mul(other)
