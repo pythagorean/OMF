@@ -13,6 +13,10 @@ from ...transform.reduction.diagonal.block import BlockDiagonalReduction
 from ...transform.reduction.diagonal.element import ElementDiagonalReduction
 from ...transform.reduction.radical.factor import RadicalFactoredReduction
 
+default_reductions = [BlockDiagonalReduction,
+                      ElementDiagonalReduction,
+                      RadicalFactoredReduction]
+
 ScalingFactor = Annotated[int, Field(gt=1)]
 
 
@@ -23,10 +27,10 @@ class ReducedMatrion(ReducedMatrionInitMixin,
                      MatrionFacility,
                      BaseModel):
     reduced: bool = Field(default=False)
-    reductions: List[Type[ReductionTransform]] = Field(
-        default=[BlockDiagonalReduction, ElementDiagonalReduction, RadicalFactoredReduction])
-    performed_reductions: List[Tuple[Type[ReductionTransform],
-                                     ScalingFactor]] = Field(default=[])
+    reductions: List[
+        Type[ReductionTransform]] = Field(default=default_reductions)
+    performed_reductions: List[Tuple[
+        Type[ReductionTransform], ScalingFactor, Dict]] = Field(default=[])
 
     # Autopopulated
     reduction_names: Dict[str, Type[ReductionTransform]] = Field(default={})
@@ -40,17 +44,3 @@ class ReducedMatrion(ReducedMatrionInitMixin,
             raise ValueError("The defers are populated automatically")
         self._init_autopopulate_reduction_dictionaries()
         return self
-
-    def data(self, *, called_from=None):
-        if not called_from:
-            called_from = self.__class__.__name__
-        exported = super().data(called_from=called_from)
-        exclude_keys = ["reductions", "reduction_names", "defers"]
-        if not (performed_reductions := [(reduction.__name__, scaling)
-                                         for reduction, scaling in self.performed_reductions]):
-            exclude_keys.append("performed_reductions")
-        else:
-            exported["performed_reductions"] = performed_reductions
-        for key in exclude_keys:
-            exported.pop(key, None)
-        return exported

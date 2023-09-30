@@ -33,9 +33,9 @@ class ReducedMatrionInitMixin:
                 warn("Using copy_reductions might inject unwanted code.")
             init_args['reductions'] = other.reductions
         super().__init__(other, performed_reductions=[], normalize=False, **init_args)
-        for reduction, factor in other.performed_reductions:
+        for reduction, factor, extra in other.performed_reductions:
             reduction = self._get_reduction_by_object(reduction)
-            self.performed_reductions.append((reduction, factor))
+            self.performed_reductions.append((reduction, factor, extra))
 
     def _init_reduced_from_value(self, value, performed_reductions, only_reductions, **kwargs):
         super().__init__(value, performed_reductions=[], normalize=False, **kwargs)
@@ -62,18 +62,25 @@ class ReducedMatrionInitMixin:
             raise ValueError("Performed reductions list error")
         accepted = []
         for performing in performed_reductions:
-            reduction, factor = self._init_validate_performing(performing)
+            reduction, factor, extra = self._init_validate_performing(
+                performing)
             installed_reduction = self._resolve_reduction(reduction)
-            accepted.append((installed_reduction, factor))
+            accepted.append((installed_reduction, factor, extra))
         self.performed_reductions = accepted
 
     def _init_validate_performing(self, performing):
-        if not isinstance(performing, tuple) or len(performing) != 2:
+        if isinstance(performing, tuple):
+            match len(performing):
+                case 2:
+                    reduction, factor = performing
+                    extra = {}
+                case 3:
+                    reduction, factor, extra = performing
+        if reduction is None:
             raise ValueError("Performed reduction format error")
-        reduction, factor = performing
         if not (isinstance(factor, int) and factor > 1):
             raise ValueError("Performed reduction factor error")
-        return reduction, factor
+        return reduction, factor, extra
 
     def _init_autopopulate_reduction_dictionaries(self):
         for reduction in self.reductions:

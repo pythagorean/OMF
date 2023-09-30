@@ -2,6 +2,33 @@ from ...transform.reduction.base import ReductionTransform, DeferTransform
 
 
 class ReducedMatrionOpsMixin:
+    def data(self, *, called_from=None):
+        if not called_from:
+            called_from = self.__class__.__name__
+        exported = super().data(called_from=called_from)
+        exclude_keys = ["reductions", "reduction_names", "defers"]
+        performed_reductions = []
+        for performed_reduction in self.performed_reductions:
+            match len(performed_reduction):
+                case 2:
+                    reduction, scaling = performed_reduction
+                    performed_reductions.append((reduction.__name__, scaling))
+                case 3:
+                    reduction, scaling, extra = performed_reduction
+                    if not extra:
+                        performed_reductions.append(
+                            (reduction.__name__, scaling))
+                    else:
+                        performed_reductions.append(
+                            (reduction.__name__, scaling, extra))
+        if not performed_reductions:
+            exclude_keys.append("performed_reductions")
+        else:
+            exported["performed_reductions"] = performed_reductions
+        for key in exclude_keys:
+            exported.pop(key, None)
+        return exported
+
     def root(self, order):
         selfcopy = self.model_copy()
         if DeferTransform.ROOT in self.defers:

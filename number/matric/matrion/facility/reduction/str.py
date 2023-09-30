@@ -17,12 +17,16 @@ class ReducedMatrionStrMixin:
         if not called_from:
             called_from = self.__class__.__name__
         interior = super()._str_interior(called_from=called_from)
-        annotations = [annotation
-                       for annotation in [reduction.annotation(factor)
-                                          for reduction, factor in self.performed_reductions]
-                       if isinstance(annotation, str)]
-        annotations = ' '.join(reversed(annotations))
-        if annotations:
+        annotations = []
+        for performed_reduction in self.performed_reductions:
+            reduction, factor, extra = performed_reduction
+            if not extra:
+                if isinstance(annotation := reduction.annotation(factor), str):
+                    annotations.append(annotation)
+            else:
+                if isinstance(annotation := reduction.annotation(factor, extra=extra), str):
+                    annotations.append(annotation)
+        if (annotations := ' '.join(reversed(annotations))):
             interior = f'{annotations}\n{interior}'
         return interior
 
@@ -35,7 +39,7 @@ class ReducedMatrionStrMixin:
         super_repr = super()._repr_interior(called_from=called_from)
         if not self.performed_reductions:
             return f"{super_repr}, reduced={self.reduced}"
-
         perform_repr = ", ".join(
-            f"('{reduction.__name__}', {factor})" for reduction, factor in self.performed_reductions)
+            f"('{reduction.__name__}', {factor}{'' if not extra else ', ' + str(extra)})"
+            for reduction, factor, extra in self.performed_reductions)
         return f"{super_repr}, reduced={self.reduced}, performed_reductions=[{perform_repr}]"

@@ -1,3 +1,6 @@
+from ..core.base import CoreMatrion
+
+
 class ModularMatrionOpsMixin:
     def _managed_data(self, *, called_from=None):
         return self._method_attrib_manager('data', called_from)
@@ -20,3 +23,8 @@ class ModularMatrionOpsMixin:
         return all(selfdata[key] == otherdata[key]
                    for key in selfkeys
                    if key not in self.eq_exclusions)
+
+    def __mul__(self, other):
+        if not isinstance(other, self.__class__):
+            return self.__class__(self._denormalized() * other)
+        return self.__class__(self._denormalized() * other._denormalized())

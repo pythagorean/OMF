@@ -1,3 +1,4 @@
+from fractions import Fraction
 from matrix.square.integer.scaled.base import FractionScaledMatrix
 from number.matric.matrion.core.base import CoreMatrion
 
@@ -24,12 +25,15 @@ class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
 
         first_index, radical = first_diagonal
         if first_index != 1:
-            # We are only handling simple scalar roots for now
+            # We are only handling scalar roots for now
             return
 
-        if radical != matrion.value.get_scaling() ** -1:
-            # This is some multiple of a scalar root
-            return
+        extra = {}
+        scaling = matrion.value.get_scaling()
+        if radical != scaling ** -1:
+            # This may be a scalar multiple of a scalar root
+            matrion.value.set_scaling((1, radical))
+            extra['/'] = (radical * scaling).as_integer_ratio()
 
         order = matrion.value.size
         number_diagonals = order * 2 - 1
@@ -44,21 +48,29 @@ class RadicalFactoredReduction(RadicalFactoredReductionOpsMixin,
                 return
 
             matrion.value = FractionScaledMatrix(0)
-            return True, order
+            return True, order, extra
 
         next_index, radicand = next_diagonal
         if (number_zero_diagonals != number_diagonals - 2
                 or next_index != -(matrion.value.size - 1)):
-            # This is not a simple scalar root
+            # This is not a single scalar root
             return
 
         matrion.value = FractionScaledMatrix((radicand, radical))
-        return True, order
+        return True, order, extra
 
     @classmethod
-    def denormalized(cls, matrion, order):
-        return CoreMatrion(matrion.value).root(order).value
+    def denormalized(cls, matrion, order, extra=None):
+        denormal_value = CoreMatrion(matrion.value).root(order).value
+        if extra and (divided := extra.get('/', None)) is not None:
+            denormal_value *= Fraction(*divided)
+        return denormal_value
 
     @classmethod
-    def annotation(cls, factor):
+    def annotation(cls, factor, extra=None):
+        if extra and (divided := extra.get('/', None)) is not None:
+            numer, denom = divided
+            if denom == 1:
+                return f"{numer} * root {factor} of"
+            return f"({Fraction(numer, denom)}) * root {factor} of"
         return f"root {factor} of"

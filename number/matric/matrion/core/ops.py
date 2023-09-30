@@ -45,3 +45,8 @@ class CoreMatrionOpsMixin(CoreMatrionRawOpsMixin):
              for col in range(order)]
             for row in range(order)]
         return cls(matrix)
+
+    def __mul__(self, other):
+        if not isinstance(other, self.__class__):
+            return self.__class__(self.value * other)
+        return self.__class__(self.value * other.value)
