@@ -33,6 +33,10 @@ class ModularMatrionOpsMixin:
 
     def _managed_mul(self, other):
         from ..base import Matrion
-        if not isinstance(other, (self.__class__, Matrion)):
+        if not isinstance(other, self.__class__):
             return Matrion(CoreMatrion(self._denormalized()) * other)
         return Matrion(CoreMatrion(self._denormalized()) * CoreMatrion(other._denormalized()))
+
+    def __pow__(self, exponent):
+        from ..base import Matrion
+        return Matrion(CoreMatrion(self._denormalized() ** exponent))
