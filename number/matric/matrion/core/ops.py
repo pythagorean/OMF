@@ -1,4 +1,5 @@
 from fractions import Fraction
+from math import lcm
 
 from .raw_ops import CoreMatrionRawOpsMixin
 
@@ -48,5 +49,27 @@ class CoreMatrionOpsMixin(CoreMatrionRawOpsMixin):
 
     def __mul__(self, other):
         if not isinstance(other, self.__class__):
-            return self.__class__(self.value * other)
-        return self.__class__(self.value * other.value)
+            try:
+                other = Fraction(other)
+                return self.__class__(self.value * other)
+            except TypeError:
+                pass
+            try:
+                other = self.__class__(other)
+            except ValueError:
+                raise ValueError(
+                    f"Operand {repr(other)} cannot be made {self.__class__.__name__}")
+        selfvalue, othervalue = self.value, other.value
+        selfsize, othersize = selfvalue.size, othervalue.size
+        if selfsize == othersize:
+            return self.__class__(selfvalue * othervalue)
+        if othersize == 1:
+            return self.__class__(selfvalue * othervalue[0, 0])
+        if selfsize == 1:
+            return self.__class__(othervalue * selfvalue[0, 0])
+        lcmsize = lcm(selfsize, othersize)
+        selfscaled = self.__class__(
+            self._upscale_diagonally_raw(lcmsize // selfsize))
+        otherscaled = self.__class__(
+            other._upscale_diagonally_raw(lcmsize // othersize))
+        return selfscaled * otherscaled

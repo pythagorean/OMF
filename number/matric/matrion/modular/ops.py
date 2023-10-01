@@ -32,6 +32,7 @@ class ModularMatrionOpsMixin:
         return self._manage_attrib_method(method_name, other=other)
 
     def _managed_mul(self, other):
-        if not isinstance(other, self.__class__):
-            return self.__class__(self._denormalized() * other)
-        return self.__class__(self._denormalized() * other._denormalized())
+        from ..base import Matrion
+        if not isinstance(other, (self.__class__, Matrion)):
+            return Matrion(CoreMatrion(self._denormalized()) * other)
+        return Matrion(CoreMatrion(self._denormalized()) * CoreMatrion(other._denormalized()))

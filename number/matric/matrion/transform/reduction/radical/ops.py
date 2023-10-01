@@ -50,11 +50,11 @@ class RadicalFactoredReductionOpsMixin:
     def defers_multiply(cls, reduction, other):
         try:
             # We only handle/defer scalars right now
-            fractional_other = Fraction(other)
+            other = Fraction(other)
         except TypeError:
             return False
         extra = reduction[2]
-        extra['/'] = (fractional_other * extra.get('/', 1)).as_integer_ratio()
+        extra['/'] = (other * extra.get('/', 1)).as_integer_ratio()
         return True
 
     @classmethod
@@ -62,8 +62,8 @@ class RadicalFactoredReductionOpsMixin:
         if extra and (divided := extra.get('/', None)) is not None:
             numer, denom = divided
             if denom == 1:
-                return f"{numer} * root {factor} of"
-            return f"({Fraction(numer, denom)}) * root {factor} of"
+                return f"({numer} * root {factor}) of"
+            return f"(({Fraction(numer, denom)}) * root {factor}) of"
         return f"root {factor} of"
 
     @classmethod
@@ -71,7 +71,7 @@ class RadicalFactoredReductionOpsMixin:
         if transform != DeferTransform.MULTIPLY:
             raise ValueError(f"unhandled transform: {transform}")
         performed = matrion.performed_reductions
-        for reduction in performed:
+        for reduction in reversed(performed):
             transform = reduction[0]
             if cls == transform and cls.defers_multiply(reduction, kwargs['other']):
                 return True
