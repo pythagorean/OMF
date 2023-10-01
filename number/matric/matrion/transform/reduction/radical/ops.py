@@ -54,7 +54,7 @@ class RadicalFactoredReductionOpsMixin:
         except TypeError:
             return False
         extra = reduction[2]
-        extra['/'] = fractional_other * extra.get('/', 1)
+        extra['/'] = (fractional_other * extra.get('/', 1)).as_integer_ratio()
         return True
 
     @classmethod
